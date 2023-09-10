@@ -10,7 +10,7 @@ dbconfig = {
 
 connection_pool = mysql.connector.pooling.MySQLConnectionPool(pool_name="pool", pool_size=10, **dbconfig)
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static", static_url_path="/static")
 app.config["JSON_AS_ASCII"] = False
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config["JSON_SORT_KEYS"] = False
@@ -81,6 +81,7 @@ def attractions_list():
 		keyword = request.args.get("keyword", None)
 
 		offset = page * 12
+		nextoffset = (page+1) * 12
 
 		if keyword is None:
 			query = """
@@ -94,10 +95,17 @@ def attractions_list():
 			cursor.execute(query, (offset,))
 			data = cursor.fetchall()
 
+			cursor.execute(query, (nextoffset,))
+			nextdata = cursor.fetchall()
+
 			result = create_images_list()
 			final_data = add_images_to_data(data, result)
+			print(final_data[0])
 
-			return jsonify({"nextPage" : page + 1, "data" : final_data})
+			if nextdata:
+				return jsonify({"nextPage" : page + 1, "data" : final_data})
+			else:
+				return jsonify({"nextPage" : None, "data" : final_data})				
 		else:
 			check_keyword = """
 			SELECT a.id, a.name, a.description, a.address, a.transport, a.lat, a.lng, c.name AS category, m.name AS mrt
@@ -111,10 +119,16 @@ def attractions_list():
 			cursor.execute(check_keyword, (keyword, "%" + keyword + "%", offset))
 			data = cursor.fetchall()
 
+			cursor.execute(check_keyword, (keyword, "%" + keyword + "%", nextoffset))
+			nextdata = cursor.fetchall()
+
 			result = create_images_list()
 			final_data = add_images_to_data(data, result)
 
-			return jsonify({"nextPage" : page + 1, "data" : final_data})					
+			if nextdata:
+				return jsonify({"nextPage" : page + 1, "data" : final_data})
+			else:
+				return jsonify({"nextPage" : None, "data" : final_data})				
 	except Exception as error:
 		print(error)
 		connection.rollback()
