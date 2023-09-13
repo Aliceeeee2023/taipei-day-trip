@@ -1,16 +1,19 @@
 const hostname = window.location.host;
 
-function createAttractions(result) {
-    let main = document.querySelector(".main");
-    let footer = document.querySelector(".footer");
-    document.body.insertBefore(main, footer);
+// 設置首頁跳轉
+const headerTitle = document.querySelector(".header-title");
 
+headerTitle.addEventListener("click", function () {
+    window.location.href = `http://${hostname}/`;
+});
+
+function createAttractions(result) {
     let mainContainer = document.querySelector(".main-container");         
 
     for (let i=0; i<result.length; i++) {
         let mainContent = document.createElement("div");
         mainContent.className = "main-content";
-        
+
         let mainPic = document.createElement("div");
         mainPic.className = "main-pic";  
         mainPic.style.backgroundImage = `url("${result[i].images[0]}")`; 
@@ -32,6 +35,10 @@ function createAttractions(result) {
         let mainCategory = document.createElement("div");
         mainCategory.className = "main-category";  
         mainCategory.textContent = result[i].category;
+
+        mainContent.addEventListener("click", function () {
+            window.location.href = `http://${hostname}/attraction/` + result[i].id;
+        });
 
         mainNameContainer.appendChild(mainName);        
         mainPic.appendChild(mainNameContainer);
@@ -76,11 +83,16 @@ const searchButton = document.querySelector(".banner-search_btn");
 searchButton.addEventListener("click", () => {
     mode = "Search";
 
+    if (searchWord !== document.querySelector(".banner-search_bar").value) {
+        searchPage = 0;
+    }
+
     searchWord = document.querySelector(".banner-search_bar").value;  
     let mainContainer = document.querySelector('.main-container');
     mainContainer.innerHTML = "";
 
-    getSearchData();
+    searchUrl = `http://${hostname}/api/attractions?keyword=${searchWord}&page=${searchPage}`
+    getSearchData(searchUrl);
 });
 
 
@@ -89,7 +101,6 @@ let searchWord = "";
 
 async function getSearchData(searchUrl) {
     try {
-        searchUrl = `http://${hostname}/api/attractions?keyword=${searchWord}&page=${searchPage}`
         let response = await fetch(searchUrl);
         let data = await response.json();
 
@@ -140,9 +151,20 @@ async function getMrtList() {
 
                 let mainContainer = document.querySelector(".main-container");
                 mainContainer.innerHTML = "";
+
+                // 比較前後的關鍵字，相同則不更動頁數，不同則將頁數歸0
+                // 避免有未捲到最下方的情況，導致未更新到 searchPage
+                if (searchWord !== mrt_name.textContent) {
+                    searchPage = 0;
+                }
+
                 searchWord = mrt_name.textContent;
 
-                searchUrl = `http://${hostname}/api/attractions?keyword=${searchWord}`;
+                let searchBar = document.querySelector(".banner-search_bar");
+                searchBar.value = mrt_name.textContent;
+                searchBar.style.color = "#000";
+
+                searchUrl = `http://${hostname}/api/attractions?keyword=${searchWord}&page=${searchPage}`;
                 getSearchData(searchUrl);
             });  
         }
@@ -160,7 +182,8 @@ function observeLoading() {
             if (entry.isIntersecting && mode == "Normal") {
                 getNormalData();
             } else if (entry.isIntersecting && mode == "SearchNext") {
-                getSearchData();         
+                searchUrl = `http://${hostname}/api/attractions?keyword=${searchWord}&page=${searchPage}`
+                getSearchData(searchUrl);         
             };
         });
     };
@@ -177,9 +200,9 @@ const mrtLeftBtn = document.querySelector(".mrt-leftbtn");
 const mrtRightBtn = document.querySelector(".mrt-rightbtn");
 
 mrtLeftBtn.addEventListener("click", () => {
-    mrtContent.scrollBy(-1100, 0);
+    mrtContent.scrollBy(-500, 0);
 });
 
 mrtRightBtn.addEventListener("click", () => {
-    mrtContent.scrollBy(+1100, 0);
+    mrtContent.scrollBy(+500, 0);
 });
