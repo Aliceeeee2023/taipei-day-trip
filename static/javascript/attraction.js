@@ -5,6 +5,8 @@ let path = location.pathname;
 let splitPath = path.split("/");
 let attractionId = splitPath[2];
 
+// let picImgElements = [];
+
 // 將資料放入網頁中
 function addAttraction(result) {
 
@@ -22,10 +24,34 @@ function addAttraction(result) {
 
         picSlide.appendChild(imgElement);
         picContainer.appendChild(picSlide);
+
+        // 創建多個 Dot
+        let picDot = document.querySelector(".pic-dot");
+
+        let picDotPic = document.createElement("div");
+        picDotPic.className = "pic-dot_pic";
+        picDotPic.id = `pic-dot_pic${i}`
+
+        let picImgElement = document.createElement("img");
+
+        if (i === 0) {
+            picImgElement.src = "../static/images/black-circle.png";
+        } else {
+            picImgElement.src = "../static/images/white-circle.png";            
+        }
+
+        picDotPic.appendChild(picImgElement);
+        picDot.appendChild(picDotPic);
+
+        picDotPic.addEventListener('click', function(index) {
+            return function() {
+                showSlide(index, currentSlideIndex);
+            }
+        }(i));
     }
 
     let attractionTitle = document.querySelector(".attraction-title");
-    attractionTitle.textContent = result.name;        
+    attractionTitle.textContent = result.name;
 
     let attractionIntro = document.querySelector(".attraction-intro");
     attractionIntro.textContent = result.category + " at " + result.mrt;  
@@ -105,8 +131,6 @@ const picContainer = document.querySelector(".pic-container");
 const picChild = picContainer.children;
 
 const picPosition = [];
-let currentSlideIndex = 0;
-
 function createSlide() {
     for (i = 0; i < picChild.length; i++) {
         picPosition[i] = i * 100;
@@ -114,83 +138,44 @@ function createSlide() {
     }
 }
 
-function showSlide(index, dotindex) {
-    currentSlideIndex = index;
+let currentSlideIndex = 0;
+let newSlideIndex = 0;
+
+function showSlide(newIndex, nowIndex) {
+    console.log("現在的點：", nowIndex, "新的點：",newIndex);
+
     for (i = 0; i < picChild.length; i++) {
-        const newPosition = -index * 100;
-        const originPosition = i * 100;     
+        const newPosition = -newIndex * 100;
+        const originPosition = i * 100;
         picChild[i].style.left = `${parseInt(originPosition) + newPosition}%`;
     }
-    dotSlide(dotindex);
+    dotSlide(newIndex, nowIndex);
 }
-
-let dotSlideIndex = 0;
 
 // 輪播圖左右箭頭
 const picLeftArrow = document.querySelector(".pic-left_arrow");
 const picRightArrow = document.querySelector(".pic-right_arrow");
 
 picLeftArrow.addEventListener("click", function () {
-    currentSlideIndex = (currentSlideIndex - 1 + picChild.length) % picChild.length;
-    dotSlideIndex = (dotSlideIndex - 1) % 3;
-    showSlide(currentSlideIndex, dotSlideIndex);
+    newSlideIndex = (currentSlideIndex - 1 + picChild.length) % picChild.length;
+
+    showSlide(newSlideIndex, currentSlideIndex);
 });
 picRightArrow.addEventListener("click", function () {
-    currentSlideIndex = (currentSlideIndex + 1) % picChild.length;
-    dotSlideIndex = (dotSlideIndex + 1) % 3;
-    showSlide(currentSlideIndex, dotSlideIndex);
+    newSlideIndex = (currentSlideIndex + 1) % picChild.length;
+
+    showSlide(newSlideIndex, currentSlideIndex);
 });
 
-// 輪播圖下方圓點
-const picDot1 = document.querySelector(".pic-dot_pic1");
-const picDot2 = document.querySelector(".pic-dot_pic2");
-const picDot3 = document.querySelector(".pic-dot_pic3");
-
-function dotSlide(index) {
-    dotSlideIndex = index;
-
-    if (index == 0) {
-        picDot1.querySelector("img").src = "../static/images/black-circle.png";
-        picDot2.querySelector("img").src = "../static/images/white-circle.png";        
-        picDot3.querySelector("img").src = "../static/images/white-circle.png";
-    } else if (index == 1) {
-        picDot1.querySelector("img").src = "../static/images/white-circle.png";
-        picDot2.querySelector("img").src = "../static/images/black-circle.png";        
-        picDot3.querySelector("img").src = "../static/images/white-circle.png";
-    } else {
-        picDot1.querySelector("img").src = "../static/images/white-circle.png";
-        picDot2.querySelector("img").src = "../static/images/white-circle.png";        
-        picDot3.querySelector("img").src = "../static/images/black-circle.png";
+// 點擊左右按鈕後同時進行點的變換
+function dotSlide(newDot, nowDot) {
+    if (newDot !== nowDot) { // 如果選擇的點跟現在的點相同則不進行任何動作
+        let targetElement = document.getElementById(`pic-dot_pic${newDot}`);
+        targetElement.querySelector("img").src = "../static/images/black-circle.png";
+    
+        let originElement = document.getElementById(`pic-dot_pic${nowDot}`);
+        originElement.querySelector("img").src = "../static/images/white-circle.png";
+    
+        currentSlideIndex = newDot;
     }
 }
-
-function createDotListener() {
-    picDot1.addEventListener("click", function () {
-        nowdotIndex = 0;
-        distance = dotSlideIndex - nowdotIndex;
-
-        currentSlideIndex = (currentSlideIndex - distance + picChild.length) % picChild.length;
-        dotSlideIndex = (dotSlideIndex - distance) % 3;        
-
-        showSlide(currentSlideIndex, dotSlideIndex);
-    });
-    picDot2.addEventListener("click", function () {
-        nowdotIndex = 1;
-        distance = dotSlideIndex - nowdotIndex;
-
-        currentSlideIndex = (currentSlideIndex - distance + picChild.length) % picChild.length;
-        dotSlideIndex = (dotSlideIndex - distance) % 3;        
-
-        showSlide(currentSlideIndex, dotSlideIndex);
-    });
-    picDot3.addEventListener("click", function () {
-        nowdotIndex = 2;
-        distance = dotSlideIndex - nowdotIndex;
-
-        currentSlideIndex = (currentSlideIndex - distance + picChild.length) % picChild.length;
-        dotSlideIndex = (dotSlideIndex - distance) % 3;        
-
-        showSlide(currentSlideIndex, dotSlideIndex);
-    });
-}
-createDotListener();

@@ -99,10 +99,10 @@
     bottom: 13px;
     display: flex;
     transform: translate(-50%);
-    width: 72px;
     height: 12px;
+    justify-content: space-between;
 }
-.pic-dot_pic1, .pic-dot_pic2, .pic-dot_pic3 {
+.pic-dot_pic {
     width: 24px;
     line-height: 12px;
     cursor: pointer;
@@ -222,7 +222,7 @@
     margin: auto;
     margin-top: 40px;
     margin-bottom: 40px;
-    stroke: #E8E8E8;
+    border-top: 0px;
     border-left: 0px;
     border-right: 0px;
 }
