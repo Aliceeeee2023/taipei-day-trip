@@ -1,0 +1,317 @@
+.body {
+    margin: 0;
+    font-family: "Noto Sans TC";
+    /* overflow-y: hidden; */
+}
+
+/* header CSS */
+.header {
+    z-index: 2;
+    position: sticky;
+    top: 0px;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+    width: 100%;
+    height: 54px;
+    border-bottom: 1px solid #E8E8E8;
+    background-color: white;
+}
+.header-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 1200px;
+}
+.header-title {
+    width: 150px;
+    line-height: 34px;
+    color: #489;
+    font-size: 30px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.header-nav {
+    display: flex;
+    justify-content: flex-end;
+    flex: auto;
+}
+.header-nav_content {
+    padding: 10px;
+    line-height: 14px;
+    color: #666;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+/* Attractions CSS */
+.attraction {
+    display: flex;
+    margin: 0 auto;
+    margin-bottom: 40px;
+    padding: 0px 15px 0px 15px;
+    width: 1200px;
+    height: 400px;
+    box-sizing: border-box;
+}
+.attraction-pic {
+    position: relative;
+    margin-right: 30px;
+    width: 540px;
+    height: 400px;
+    background-size: cover;
+    overflow: hidden;
+}
+.pic-container {
+    z-index: 0;
+    width: 540px;
+    height: 400px;
+}
+.pic-slide {
+    position: absolute;
+    transition: left 0.5s;
+    width: 100%;
+    height: 100%;
+}
+.pic-slide img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.pic-left_arrow, .pic-right_arrow {
+    z-index: 1;
+    position: absolute;
+    top: 185px;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+}
+.pic-left_arrow {
+    left: 10px;
+}
+.pic-right_arrow {
+    right: 10px;
+}
+.pic-dot {
+    z-index: 1;
+    position: absolute;
+    left: 50%;
+    bottom: 13px;
+    display: flex;
+    transform: translate(-50%);
+    height: 12px;
+    justify-content: space-between;
+}
+.pic-dot_pic {
+    width: 24px;
+    line-height: 12px;
+    cursor: pointer;
+}
+.attraction-data {
+    width: 600px;
+    height: 400px;
+    padding-bottom: 8px;
+    box-sizing: border-box;
+}
+.attraction-title {
+    margin-bottom: 15px;
+    line-height: 33px;
+    color: #666;
+    font-size: 24px;
+    font-weight: 700;
+}
+.attraction-intro {
+    margin-bottom: 20px;
+    line-height: 22px;
+    color: #666;
+    font-size: 16px;
+    font-weight: 500;
+}
+.attraction-booking {
+    border-radius: 5px;
+    padding: 15px 20px 0px 20px;
+    height: 302px;
+    background-color: #E8E8E8;
+    box-sizing: border-box;
+}
+.booking_title, .booking_intro {
+    margin-bottom: 15px;
+    line-height: 22px;
+    color: #666;
+    font-size: 16px;
+}
+.booking_title {
+    font-weight: 700;
+}
+.booking_intro {
+    font-weight: 500;
+}
+.booking_date {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;  
+    height: 35px;
+}
+.booking_date_title {
+    line-height: 35px;
+    margin-right: 5px;
+    color: #666;
+    font-size: 16px;
+    font-weight: 700;
+}
+.booking_date_info {
+    display: flex;
+    padding: 5px 10px 5px 10px;
+    width: 193px;
+    height: 35px;
+    background-color:#FFF;
+    box-sizing: border-box;
+}
+.booking_date_choose {
+    border: 0px;
+    color: #000;
+    font-size: 16px;
+    font-weight: 500;
+    font-family: "Noto Sans TC";
+}
+.booking_time, .booking_cost {
+    display: flex;
+    align-items: center;
+    height: 22px;
+    margin-bottom: 15px;
+}
+.booking_time_title, .booking_cost_title {
+    display: flex;
+    justify-content: center;
+    width: 81px;
+    line-height: 22px;
+    color: #666;
+    font-size: 16px;
+    font-weight: 700;
+    margin-right: 5px;
+}
+.booking_time_select {
+    display: flex;
+    weight: 87px;
+    height: 22px;
+    padding: 0px 5px 0px 8px;
+    margin-right: 5px;
+    box-sizing: border-box;
+}
+.booking_time_daybtn, .booking_time_nightbtn {
+    margin-right: 4px;
+    width: 22px;
+    cursor: pointer;
+}
+.booking_time_info, .booking_cost_info {
+    height: 22px;
+    line-height: 22px;
+    color: #666;
+    font-size: 16px;
+    font-weight: 500;
+}
+.booking_btn {
+    width: 154px;
+    height: 36px;
+    margin-bottom: 41px;
+}
+
+/* hr CSS */
+.hr {
+    width:1200px;
+    margin: auto;
+    margin-top: 40px;
+    margin-bottom: 40px;
+    border-top: 0px;
+    border-left: 0px;
+    border-right: 0px;
+}
+
+/* Infors CSS */
+.infors {
+    margin: 0 auto;
+    width: 1200px;
+    padding: 10px 10px 80px 10px;
+    box-sizing: border-box;
+}
+.infors-data, .infors-address, .infors-transport {
+    color: #666;
+    font-size: 16px;
+    font-weight: 400;
+}
+.infors-title{
+    margin-top: 20px;
+    color: #666;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+/* Footer CSS */
+.footer {
+    bottom: 0;
+    margin-top: 40px;
+    padding-top: 40px;
+    width: 100%;
+    height: 104px;
+    background-color: #757575;
+    box-sizing: border-box;
+}
+.footer-container {
+    text-align: center;
+    line-height: 24px;
+    color: #FFF;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: "Noto Sans TC";
+}
+
+/* RWD setting */
+@media (max-width: 1200px) {
+    .header-container {
+        width: 100%;
+        padding-left: 10px;
+        box-sizing: border-box;
+    }
+    .attraction, .infors {
+        width: 100%;         
+    }
+    .hr {
+        width: 97%;
+        margin: 0 auto;
+        margin-bottom: 40px;
+    }    
+    .attraction-pic, .attraction-data {
+        width: 50%;
+    }
+}
+@media (max-width: 800px) {
+    .header{
+        margin-bottom: 0px;
+    }
+    .header-container, .attraction, .infors, .attraction-pic {
+        width: 100%;
+    }
+    .infors {
+        padding-left: 20px;
+        padding-right: 10px;
+    }
+    .attraction{
+        display: block;
+        height: 100%;
+        padding-left: 0px;
+        padding-right: 0px;
+    }
+    .attraction-data {
+        margin:0 auto;
+        margin-top: 20px;
+        width: 94%;
+    }
+    .hr {
+        width: 94%;
+        margin: 0 auto;
+        margin-bottom: 40px;
+    }
+    .booking_btn {
+        margin-top: 25px;
+    }
+}
