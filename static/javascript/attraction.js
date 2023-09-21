@@ -5,8 +5,6 @@ let path = location.pathname;
 let splitPath = path.split("/");
 let attractionId = splitPath[2];
 
-// let picImgElements = [];
-
 // 將資料放入網頁中
 function addAttraction(result) {
 

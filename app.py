@@ -1,5 +1,5 @@
 from flask import *
-import mysql.connector.pooling, json
+import mysql.connector.pooling, json, jwt, datetime
 
 dbconfig = {
     "user" : "root",
@@ -14,6 +14,8 @@ app = Flask(__name__, static_folder="static", static_url_path="/static")
 app.config["JSON_AS_ASCII"] = False
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config["JSON_SORT_KEYS"] = False
+
+secret_key = "test"
 
 # Pages
 @app.route("/")
@@ -100,7 +102,6 @@ def attractions_list():
 
 			result = create_images_list()
 			final_data = add_images_to_data(data, result)
-			print(final_data[0])
 
 			if nextdata:
 				return jsonify({"nextPage" : page + 1, "data" : final_data})
@@ -214,6 +215,142 @@ def mrts_list():
  			"message": "伺服器內部錯誤"
 		}
 		return jsonify(error_data), 500		
+	finally:
+		cursor.close()
+		connection.close()
+
+@app.route("/api/user", methods=["POST"])
+def create_user():
+	connection = connection_pool.get_connection()
+	cursor = connection.cursor(dictionary=True)	
+
+	try:
+		data = request.get_json()
+		name = data["name"]
+		email = data["email"]
+		password = data["password"]
+
+		query = "SELECT email FROM users WHERE email=%s"
+		cursor.execute(query, (email, ))
+		select_data = cursor.fetchall()
+
+		if not name or not email or not password:
+			wrong_message = {
+				"error": True,
+				"message": "註冊資料不得為空"
+			}
+
+			return jsonify(wrong_message), 400
+		elif not select_data:
+			query = "INSERT INTO users(name, email, password) VALUES(%s, %s, %s)"
+			cursor.execute(query, (name, email, password))
+			connection.commit()
+
+			return jsonify({"ok" : True}), 200
+		else:
+			wrong_message = {
+				"error": True,
+				"message": "此Email已被註冊過"
+			}
+
+			return jsonify(wrong_message), 400			
+	except Exception as error:
+		print(error)
+		connection.rollback()
+
+		error_message = {
+			"error": True,
+ 			"message": "伺服器內部錯誤"
+		}
+		return jsonify(error_message), 500		
+	finally:
+		cursor.close()
+		connection.close()
+
+@app.route("/api/user/auth", methods=["PUT"])
+def login():
+	connection = connection_pool.get_connection()
+	cursor = connection.cursor(dictionary=True)	
+
+	try:
+		data = request.get_json()
+		email = data["email"]
+		password = data["password"]
+
+		query = "SELECT email, password FROM users WHERE email=%s"
+		cursor.execute(query, (email, ))
+		select_data = cursor.fetchone()
+
+		if select_data and password == select_data["password"]:
+			payload = {
+				"email": email,
+				"password": password,
+				"exp": datetime.datetime.utcnow() + datetime.timedelta(days=7)
+			}
+			token = jwt.encode(payload, secret_key, algorithm="HS256")
+
+			return jsonify({"token" : token}), 200
+		elif select_data and password != select_data["password"]:
+			wrong_message = {
+				"error": True,
+				"message": "密碼輸入錯誤"
+			}
+
+			return jsonify(wrong_message), 400
+		elif not select_data:
+			wrong_message = {
+				"error": True,
+				"message": "Email輸入錯誤"
+			}
+
+			return jsonify(wrong_message), 400
+	except Exception as error:
+		print(error)
+		connection.rollback()
+
+		error_message = {
+			"error": True,
+ 			"message": "伺服器內部錯誤"
+		}
+
+		return jsonify(error_message), 500		
+	finally:
+		cursor.close()
+		connection.close()
+
+@app.route("/api/user/auth", methods=["GET"])
+def checkUsers():
+	connection = connection_pool.get_connection()
+	cursor = connection.cursor(dictionary=True)
+
+	try:
+		authorization_header = request.headers.get("Authorization")
+		bearer_token = authorization_header.split(" ")[1]
+
+		if bearer_token == "null":
+			return jsonify({"data" : None}), 200
+
+		payload = jwt.decode(bearer_token, secret_key, algorithms=['HS256'])
+		email = payload["email"]
+		password = payload["password"]
+
+		query = "SELECT id, name, email, password FROM users WHERE email=%s AND password=%s"
+		cursor.execute(query, (email, password))
+		select_data = cursor.fetchone()
+
+		if select_data:
+			userData = {
+				"id": select_data["id"],
+				"name": select_data["name"],
+				"email": select_data["email"]
+			}
+
+			return jsonify({"data" : userData}), 200
+		else:
+			return jsonify({"data" : None}), 200
+	except Exception as error:
+		print(error)
+		connection.rollback()
 	finally:
 		cursor.close()
 		connection.close()
