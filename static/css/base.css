@@ -1,0 +1,138 @@
+.body {
+    margin: 0;
+    font-family: "Noto Sans TC";
+    /* overflow-y: hidden; */
+}
+
+/* header CSS */
+.header {
+    z-index: 2;
+    position: sticky;
+    top: 0px;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+    width: 100%;
+    height: 54px;
+    border-bottom: 1px solid #E8E8E8;
+    background-color: white;
+}
+.header-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 1200px;
+}
+.header-title {
+    width: 150px;
+    line-height: 34px;
+    color: #489;
+    font-size: 30px;
+    font-weight: 700;
+    cursor: pointer;
+}
+.header-nav {
+    display: flex;
+    justify-content: flex-end;
+    flex: auto;
+}
+.header-nav_content, .header-nav_login, .header-nav_logout {
+    padding: 10px;
+    line-height: 14px;
+    color: #666;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+}
+.header-nav_logout {
+    display: none;
+}
+
+/* dialog CSS */
+.black-background {
+    display: none;
+    z-index: 4;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    opacity: 0.25;
+}
+.signup, .login {
+    display: none;
+    z-index: 4;
+    position: fixed;
+    top: 80px;
+    padding: 0px;
+    width: 340px;
+    border: 0px;
+    border-radius: 6px;
+    box-shadow: 0px 4px 60px 0px #AAA;
+}
+.signup-bar, .login-bar {
+    height: 10px;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    background: linear-gradient(270deg, #378 0%, #6AB 100%);
+}
+.signup-content, .login-content {
+    position: relative;
+    padding: 15px;
+}
+.signup-close, .login-close {
+    position: absolute;
+    top: 17px;
+    right: 17px;
+    line-height: 16px;
+    cursor: pointer;  
+}
+.signup-content_title, .login-content_title {
+    text-align: center;
+    margin-bottom: 15px;
+    line-height: 27px;
+    color: #666;
+    font-size: 24px;
+    font-weight: 700;
+}
+.signup-name, .signup-email, .signup-password, .login-email, .login-password {
+    margin-bottom: 10px;
+    padding: 15px;
+    width: 278px;
+    line-height: 15px;
+    color: #757575;
+    font-family: "Noto Sans TC";
+    font-size: 16px;
+    font-weight: 500;
+    border-radius: 5px;
+    border: 1px solid #CCC;
+}
+.signup-btn, .login-btn {
+    text-align: center;
+    margin-bottom: 10px;
+    padding: 10px 20px 10px 20px;
+    line-height: 27px;
+    color: #FFF;
+    font-size: 19px;
+    font-weight: 400;
+    border-radius: 5px;
+    background: #489;
+    cursor: pointer;
+}
+.change-to-login, .change-to-signup {
+    text-align: center;
+    line-height: 22px;
+    font-size: 16px;
+    color: #666;
+    font-weight: 500;
+    cursor: pointer;
+}
+.signup-status, .login-status {
+    display: none;
+    margin-bottom: 10px;
+    text-align: center;
+    line-height: 22px;
+    font-size: 16px;
+    color: red;
+    font-weight: 500;
+}

@@ -4,6 +4,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta charset="utf-8" />
         <title>Taipei Trip 台北一日遊</title>
+        <link rel="stylesheet" type="text/css" href="../static/css/base.css" />
         <link rel="stylesheet" type="text/css" href="../static/css/attraction.css" />
     </head>
     <body class="body">
@@ -13,32 +14,55 @@
                 <div class="header-title">台北一日遊</div>
                 <nav class="header-nav">
                     <div class="header-nav_content">預定行程</div>
-                    <div class="header-nav_content">登入/註冊</div>
+                    <div class="header-nav_login">登入/註冊</div>
+                    <div class="header-nav_logout">登出系統</div>
                 </nav>
             </div>
         </header>
 
+        <div class="black-background"></div>
+
+        <dialog class="signup">
+            <div class="signup-bar"></div>
+            <div class="signup-content">
+                <div class="signup-close">
+                    <img src="../static/images/icon_close.png" width="16px" height="16px">
+                </div>
+                <div class="signup-content_title">註冊會員帳號</div>
+                <input class="signup-name" type="text" placeholder="輸入姓名">
+                <input class="signup-email" type="text" placeholder="輸入電子郵件">
+                <input class="signup-password" type="password" placeholder="輸入密碼">
+                <div class="signup-btn">註冊新帳戶</div>
+                <div class="signup-status"></div>
+                <div class="change-to-login">已經有帳戶了？點此登入</div>
+            </div>
+        </dialog>
+
+        <dialog class="login">
+            <div class="login-bar"></div>
+            <div class="login-content">
+                <div class="login-close">
+                    <img src="../static/images/icon_close.png" width="16px" height="16px">
+                </div>
+                <div class="login-content_title">登入會員帳號</div>
+                <input class="login-email" type="text" placeholder="輸入電子郵件">
+                <input class="login-password" type="password" placeholder="輸入密碼">
+                <div class="login-btn">登入帳戶</div>
+                <div class="login-status"></div>
+                <div class="change-to-signup">還沒有帳戶？點此註冊</div>
+            </div>
+        </dialog>
+
         <section class="attraction">
             <div class="attraction-pic">
-                <div class="pic-container">
-                    <!-- <div class="pic-slide">
-                        <img src="">
-                    </div>
-                    <div class="pic-slide">
-                        <img src="">
-                    </div> -->
-                </div>
+                <div class="pic-container"></div>
                 <div class="pic-left_arrow">
                     <img src="../static/images/pic-left-arrow.png" width="32px" height="32px">
                 </div>
                 <div class="pic-right_arrow">
                     <img src="../static/images/pic-right-arrow.png" width="32px" height="32px">
                 </div>
-                <div class="pic-dot">
-                    <!-- <div class="pic-dot_pic1"><img src="../static/images/black-circle.png" width="12px" height="12px"></div>
-                    <div class="pic-dot_pic2"><img src="../static/images/white-circle.png" width="12px" height="12px"></div>
-                    <div class="pic-dot_pic3"><img src="../static/images/white-circle.png" width="12px" height="12px"></div> -->
-                </div>
+                <div class="pic-dot"></div>
                 </div>
             <div class="attraction-data">
                 <div class="attraction-title"></div>
@@ -93,5 +117,6 @@
         </footer>
 
         <script src="../static/javascript/attraction.js"></script>
+        <script src="../static/javascript/usercheck.js"></script>
     </body>
 </html>
