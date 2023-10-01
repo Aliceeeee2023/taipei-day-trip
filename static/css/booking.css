@@ -1,0 +1,207 @@
+/* booking CSS */
+.booking {
+    margin: 0 auto;
+}
+.booking-title {
+    width: 1000px;
+    margin: 0 auto;
+    padding-bottom: 30px;
+    color: #666;
+    font-size: 19px;
+    font-weight: 700;
+}
+.booking-nocontent {
+    display: none;
+    width: 1000px;
+    margin: 0 auto;
+    margin-bottom: 40px;
+    color: #666;
+    font-weight: 500;
+}
+
+/* location CSS */
+.booking-data {
+    display: none;
+}
+.booking-content {
+    margin: 0 auto;
+    margin-bottom: 40px;
+}
+.location, .location-other {
+    position: relative;
+    width: 980px;
+    margin: 0 auto;
+}
+.location {
+    display: flex;
+}
+.location-pic {
+    height: 200px;
+    margin-right: 22px;
+    padding-right: 8px;
+}
+.location-pic_img {
+    width: 250px;
+    height: 200px;
+    object-fit: cover;
+}
+.location-text {
+    width: 700px;
+}
+.location-name {
+    margin-bottom: 20px;
+    color: #489;
+    font-size: 16px;
+    font-weight: 700;
+}
+.location-date, .location-time, .location-cost, .location-address {
+    display: flex;
+    margin-bottom: 10px;
+}
+.location-title {
+    color: #666;
+    font-size: 16px;
+    font-weight: 700;
+}
+.date-content, .time-content, .cost-content, .address-content {
+    margin-left: 5px;
+    color: #666;
+    font-size: 16px;
+    font-weight: 500;
+}
+.location-delete {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    height: 30px;
+    cursor: pointer;
+}
+
+/* hr CSS */
+.hr {
+    width:1200px;
+    margin: 0 auto;
+    border-top: 0px;
+}
+
+/* contact, payment, check CSS */
+.contact, .payment {
+    margin: 40px 0px 40px 0px;
+}
+.contact-title, .payment-title {
+    margin-bottom: 20px;
+    line-height: 24px;
+    color: #666;
+    font-size: 19px;
+    font-weight: 700;
+}
+.contact-data, .payment-detail {
+    display: flex;
+    margin-bottom: 15px;
+}
+.data-title, .payment-detail_title {
+    line-height: 38px;
+    color:  #666;
+    font-weight: 500;
+}
+.data-name, .data-email, .data-phone, .payment-detail_content {
+    width: 200px;
+    height: 38px;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #E8E8E8;
+    border-radius: 5px;
+    font-family: "Noto Sans TC";
+    font-size: 16px;
+    font-weight: 500;
+    background: #FFF;
+}
+.contact-remind {
+    color: #666;
+    font-size: 16px;
+    font-weight: 700;
+}
+.check {
+    margin: 40px 0px 40px 0px;
+    padding-bottom: 22px;
+}
+.check-cost {
+    margin-bottom: 22px;
+    line-height: 20px;
+    text-align: right;
+    color: #666;
+    font-weight: 700;
+}
+.check-btn {
+    text-align: right;
+    cursor: pointer;
+    height: 36px;
+}
+
+/* footer CSS */
+.footer {
+    width: 100%;
+    height: 726px;
+    padding-top: 40px;
+    box-sizing: border-box;
+    background-color: #757575;
+}
+.footer-container {
+    text-align: center;
+    color: #FFF;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+/* RWD Setting */
+@media (max-width: 1200px) {
+    .header-container {
+        width: 100%;
+        padding: 10px 0px 10px 10px;
+        box-sizing: border-box;
+    }
+    .booking, .location, .contact, .payment, .check, .location-pic_img {
+        width: 100%;
+    }
+    .booking-title, .booking-nocontent, .booking-content, .location-other {
+        width: 90%;
+    }
+    .location-pic, .location-text {
+        width: 50%;        
+    }
+    .hr {
+        width: 95%;
+    }
+}
+@media (max-width: 800px) {
+    .booking, .booking-title, .booking-nocontent, .booking-content, .location, .location-other, .hr, .contact, .payment, .check {
+        width: 100%;
+    }
+    .booking {
+        padding: 0px 10px 0px 10px;
+        box-sizing: border-box;        
+    }
+    .booking-data {
+        padding: 0px 10px 0px 10px;
+    }
+    .location {
+        flex-wrap: wrap;
+    }
+    .location-pic {
+        width: 100%; 
+        height: 256px;
+        margin-right: 0px;
+        padding: 0px 0px 28px 0px;
+    }
+    .location-pic_img {
+        height: 256px;
+    }
+    .location-text {
+        width: 100%;
+        padding-bottom: 20px;
+    }
+    .location-delete {
+        top: auto;
+        bottom: 0px;
+    }
+}

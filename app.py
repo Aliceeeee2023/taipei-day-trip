@@ -277,14 +277,13 @@ def login():
 		email = data["email"]
 		password = data["password"]
 
-		query = "SELECT email, password FROM users WHERE email=%s"
+		query = "SELECT id, email, password FROM users WHERE email=%s"
 		cursor.execute(query, (email, ))
 		select_data = cursor.fetchone()
 
 		if select_data and password == select_data["password"]:
 			payload = {
-				"email": email,
-				"password": password,
+				"id": select_data["id"],
 				"exp": datetime.datetime.utcnow() + datetime.timedelta(days=7)
 			}
 			token = jwt.encode(payload, secret_key, algorithm="HS256")
@@ -331,11 +330,10 @@ def checkUsers():
 			return jsonify({"data" : None}), 200
 
 		payload = jwt.decode(bearer_token, secret_key, algorithms=['HS256'])
-		email = payload["email"]
-		password = payload["password"]
+		id = payload["id"]
 
-		query = "SELECT id, name, email, password FROM users WHERE email=%s AND password=%s"
-		cursor.execute(query, (email, password))
+		query = "SELECT id, name, email, password FROM users WHERE id=%s"
+		cursor.execute(query, (id,))
 		select_data = cursor.fetchone()
 
 		if select_data:
@@ -351,6 +349,207 @@ def checkUsers():
 	except Exception as error:
 		print(error)
 		connection.rollback()
+	finally:
+		cursor.close()
+		connection.close()
+
+@app.route("/api/booking", methods=["POST"])
+def add_booking():
+	connection = connection_pool.get_connection()
+	cursor = connection.cursor(dictionary=True)
+
+	try:
+		new_data = request.get_json()		
+		authorization_header = request.headers.get("Authorization")
+		bearer_token = authorization_header.split(" ")[1]
+
+		if bearer_token == "null":
+			wrong_message = {
+				"error": True,
+				"message": "未登入系統，拒絕存取"
+			}
+
+			return jsonify(wrong_message), 403
+
+		payload = jwt.decode(bearer_token, secret_key, algorithms=['HS256'])
+		id = payload["id"]
+
+		query = """
+		SELECT u.id, b.users_id
+		FROM users AS u
+		LEFT JOIN bookings AS b ON u.id=b.users_id
+		WHERE u.id=%s
+		"""
+		cursor.execute(query, (id,))
+		select_data = cursor.fetchone()
+
+		id = select_data["id"]
+		attractionId = new_data["attractionId"]
+		date = new_data["date"]
+		time = new_data["time"]
+		price = new_data["price"]
+
+		if select_data and not select_data["users_id"]:
+			query = "INSERT INTO bookings(users_id, attractions_id, date, time, price) VALUES(%s, %s, %s, %s, %s)"
+			cursor.execute(query, (id, attractionId, date, time, price))
+			connection.commit()
+
+			return jsonify({"ok" : True}), 200
+		elif select_data and select_data["users_id"]:
+			query = "UPDATE bookings SET attractions_id=%s, date=%s, time=%s, price=%s WHERE users_id=%s"
+			cursor.execute(query, (attractionId, date, time, price, id))
+			connection.commit()
+
+			return jsonify({"ok" : True}), 200
+		else:
+			wrong_message = {
+				"error": True,
+				"message": "未登入系統，拒絕存取"
+			}
+
+			return jsonify(wrong_message), 403
+	except Exception as error:
+		print(error)
+		connection.rollback()
+
+		error_message = {
+			"error": True,
+ 			"message": "伺服器內部錯誤"
+		}
+
+		return jsonify(error_message), 500		
+	finally:
+		cursor.close()
+		connection.close()
+
+@app.route("/api/booking", methods=["GET"])
+def get_booking():
+	connection = connection_pool.get_connection()
+	cursor = connection.cursor(dictionary=True)
+
+	try:
+		authorization_header = request.headers.get("Authorization")
+		bearer_token = authorization_header.split(" ")[1]
+
+		if bearer_token == "null":
+			wrong_message = {
+				"error": True,
+				"message": "未登入系統，拒絕存取"
+			}
+
+			return jsonify(wrong_message), 403
+
+		payload = jwt.decode(bearer_token, secret_key, algorithms=['HS256'])
+		id = payload["id"]
+
+		query = """
+		SELECT u.id AS users_id, b.users_id AS booking_id, DATE_FORMAT(b.date, "%Y-%m-%d") AS date, b.time, b.price, a.id, a.name, a.address, i.url
+		FROM users AS u
+		LEFT JOIN bookings AS b ON u.id=b.users_id		
+		LEFT JOIN attractions AS A ON a.id=b.attractions_id
+		LEFT JOIN images AS i ON a.id=i.attractions_id
+		WHERE u.id=%s
+		LIMIT 1
+		"""
+		cursor.execute(query, (id,))
+		select_data = cursor.fetchone()
+
+		if select_data and select_data["booking_id"]:
+			final_data = {
+				"data" : {
+					"attraction" : {
+						"id" : select_data["id"],
+						"name" : select_data["name"],
+						"address" : select_data["address"],
+						"image" : select_data["url"]
+					},
+					"date" : select_data["date"],
+					"time" : select_data["time"],
+					"price" : select_data["price"]			
+				}
+			}
+
+			return jsonify(final_data), 200
+		elif select_data and not select_data["booking_id"]:
+			final_data = {"data": None}
+
+			return jsonify(final_data), 200
+		else:
+			wrong_message = {
+				"error": True,
+				"message": "未登入系統，拒絕存取"
+			}
+
+			return jsonify(wrong_message), 403
+	except Exception as error:
+		print(error)
+		connection.rollback()
+
+		error_message = {
+			"error": True,
+ 			"message": "伺服器內部錯誤"
+		}
+
+		return jsonify(error_message), 500		
+	finally:
+		cursor.close()
+		connection.close()
+
+@app.route("/api/booking", methods=["DELETE"])
+def delete_booking():
+	connection = connection_pool.get_connection()
+	cursor = connection.cursor(dictionary=True)
+
+	try:
+		authorization_header = request.headers.get("Authorization")
+		bearer_token = authorization_header.split(" ")[1]
+
+		if bearer_token == "null":
+			wrong_message = {
+				"error": True,
+				"message": "未登入系統，拒絕存取"
+			}
+
+			return jsonify(wrong_message), 403
+
+		payload = jwt.decode(bearer_token, secret_key, algorithms=['HS256'])
+		id = payload["id"]
+
+		query = """
+		SELECT u.id, b.users_id
+		FROM users AS u
+		LEFT JOIN bookings AS b ON u.id=b.users_id
+		WHERE u.id=%s
+		"""
+		cursor.execute(query, (id,))
+		select_data = cursor.fetchone()
+		connection.commit()
+
+		if select_data and select_data["users_id"]:
+			delete_id = select_data["users_id"]
+
+			delete_query = "DELETE FROM bookings WHERE users_id=%s"
+			cursor.execute(delete_query, (delete_id,))
+			connection.commit()
+
+			return jsonify({"ok": True}), 200
+		else:
+			wrong_message = {
+				"error": True,
+				"message": "未登入系統，拒絕存取"
+			}
+
+			return jsonify(wrong_message), 403
+	except Exception as error:
+		print(error)
+		connection.rollback()
+
+		error_message = {
+			"error": True,
+ 			"message": "伺服器內部錯誤"
+		}
+
+		return jsonify(error_message), 500
 	finally:
 		cursor.close()
 		connection.close()

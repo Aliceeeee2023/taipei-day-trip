@@ -1,3 +1,4 @@
+// 登入、登出相關變數
 const navLogin = document.querySelector(".header-nav_login");
 const navLogout = document.querySelector(".header-nav_logout");
 const signupForm = document.querySelector(".signup");
@@ -16,9 +17,42 @@ const loginEmail = document.querySelector(".login-email");
 const loginPassword = document.querySelector(".login-password");
 const loginBtn = document.querySelector(".login-btn");
 const loginStatus = document.querySelector(".login-status");
+const getBooking = document.querySelector(".header-nav_content");
 const token = localStorage.getItem("token");
 
-// 清空資料函示
+// 首頁相關變數
+const hostname = window.location.host;
+const headerTitle = document.querySelector(".header-title");
+
+// 首頁選項跳轉
+headerTitle.addEventListener("click", function () {
+    window.location.href = `http://${hostname}/`;
+});
+
+// 確認是否有登入
+async function checkUsers(token) {
+    try {
+        let response = await fetch("/api/user/auth", {
+            method: "GET",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            },
+        });
+        let data = await response.json();
+        let status = data.data;
+
+        if (status !== null) {
+            navLogin.style.display = "none";
+            navLogout.style.display = "block";
+            return status;
+        };
+    } catch (error) {
+        console.log("Error:", error);
+    };
+};
+checkUsers(token);
+
+// 清空資料函式
 function resetSignupData() {
     signupName.value = "";
     signupEmail.value = "";
@@ -51,7 +85,7 @@ signupClose.addEventListener("click", closeForm);
 loginClose.addEventListener("click", closeForm);
 signupBackground.addEventListener("click", closeForm);
 
-// 登入／登出
+// 登入登出處理
 navLogin.addEventListener("click", () => {
     loginForm.style.display = "block";
     signupBackground.style.display = "block";
@@ -64,7 +98,7 @@ navLogout.addEventListener("click", () => {
     window.location.reload();
 })
 
-// 更換選單
+// 登入／註冊選單更換
 changeIoLogin.addEventListener("click", () => {
     loginForm.style.display = "block";
     signupForm.style.display = "none";
@@ -174,8 +208,12 @@ async function login(data) {
     };
 };
 
-// 驗證是否登入
-async function checkUsers(token) {
+// 預定行程判斷
+getBooking.addEventListener("click", function () {
+    checkBooking(token);
+});
+
+async function checkBooking(token) {
     try {
         let response = await fetch("/api/user/auth", {
             method: "GET",
@@ -187,11 +225,12 @@ async function checkUsers(token) {
         let status = data.data;
 
         if (status !== null) {
-            navLogin.style.display = "none";
-            navLogout.style.display = "block";
+            window.location.href = `http://${hostname}/booking`;
+        } else {
+            loginForm.style.display = "block";
+            signupBackground.style.display = "block";
         };
     } catch (error) {
         console.log("Error:", error);
     };
 };
-checkUsers(token);

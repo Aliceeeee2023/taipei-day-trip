@@ -1,11 +1,32 @@
-const hostname = window.location.host;
-
 // 取得 AttractionId
-let path = location.pathname;
-let splitPath = path.split("/");
-let attractionId = splitPath[2];
+const path = location.pathname;
+const splitPath = path.split("/");
+const attractionId = splitPath[2];
 
-// 將資料放入網頁中
+// 按鈕變化相關變數
+const dayBtn = document.querySelector(".booking_time_daybtn");
+const nightBtn = document.querySelector(".booking_time_nightbtn");
+let dayMode = true;
+let nightMode = false;
+
+// 輪播圖相關變數
+const picContainer = document.querySelector(".pic-container");
+const picLeftArrow = document.querySelector(".pic-left_arrow");
+const picRightArrow = document.querySelector(".pic-right_arrow");
+const picChild = picContainer.children;
+const picPosition = [];
+let currentSlideIndex = 0;
+let newSlideIndex = 0;
+
+// 預定行程相關變數
+const bookingBtn = document.querySelector(".booking_btn");
+const bookingDate = document.querySelector(".booking_date_choose");
+const bookingCost = document.querySelector(".booking_cost_info");
+const bookingError = document.querySelector(".booking_error");
+let bookingCostValue = "";
+let bookingTimeValue = "";
+
+// 資料生成函式
 function addAttraction(result) {
 
     let attractionPic = document.querySelector(".attraction-pic");
@@ -76,71 +97,62 @@ async function getAttractionData() {
             let result = data.data;
     
             addAttraction(result);
-            createSlide(); 
+            createSlide();
+            bookingDataToday();
         }
     } catch (error) {
         console.log("Error:", error);
     }
-}
+};
 getAttractionData();
 
+// 處理預定行程日期
+function bookingDataToday() {
+    let today = new Date();
+    let todayDay = String(today.getDate()).padStart(2, "0");
+    let todayMonth = String(today.getMonth() + 1).padStart(2, "0");
+    let todayYear = today.getFullYear();
+    today = todayYear + "-" + todayMonth + "-" + todayDay;
+    
+    bookingDate.value = today;
+    bookingDate.min = today;
+};
+
 // 設置按鈕變化
-let dayBtn = document.querySelector(".booking_time_daybtn");
-let nightBtn = document.querySelector(".booking_time_nightbtn");
-
-let dayMode = true;
-let nightMode = false;
-
 dayBtn.addEventListener("click", () => {
     if ( !dayMode ) {
         dayBtn.querySelector("img").src = "../static/images/green-btn.png";
         nightBtn.querySelector("img").src = "../static/images/white-btn.png";
 
         let bookingCost = document.querySelector(".booking_cost_info");
-        bookingCost.textContent = "新台幣 2000元";
+        bookingCost.textContent = "新台幣 2000 元";
 
         dayMode = true;
         nightMode = false;
     } 
 });
-
 nightBtn.addEventListener("click", () => {
     if ( !nightMode ) {
         dayBtn.querySelector("img").src = "../static/images/white-btn.png";
         nightBtn.querySelector("img").src = "../static/images/green-btn.png";
 
         let bookingCost = document.querySelector(".booking_cost_info");
-        bookingCost.textContent = "新台幣 2500元";
+        bookingCost.textContent = "新台幣 2500 元";
 
         nightMode = true;
         dayMode = false;
     } 
 });
 
-// 設置首頁跳轉
-const headerTitle = document.querySelector(".header-title");
-
-headerTitle.addEventListener("click", function () {
-    window.location.href = `http://${hostname}/`;
-});
-
-// 輪播圖
-const picContainer = document.querySelector(".pic-container");
-const picChild = picContainer.children;
-
-const picPosition = [];
+// 輪播圖處理
 function createSlide() {
     for (i = 0; i < picChild.length; i++) {
         picPosition[i] = i * 100;
         picChild[i].style.left = `${picPosition[i]}%`;
     }
 }
-
-let currentSlideIndex = 0;
-let newSlideIndex = 0;
-
 function showSlide(newIndex, nowIndex) {
-    console.log("現在的點：", nowIndex, "新的點：",newIndex);
+    // console.log("現在的點：", nowIndex, "新的點：",newIndex);
 
     for (i = 0; i < picChild.length; i++) {
         const newPosition = -newIndex * 100;
@@ -150,10 +162,7 @@ function showSlide(newIndex, nowIndex) {
     dotSlide(newIndex, nowIndex);
 }
 
-// 輪播圖左右箭頭
-const picLeftArrow = document.querySelector(".pic-left_arrow");
-const picRightArrow = document.querySelector(".pic-right_arrow");
-
+// 輪播圖箭頭處理
 picLeftArrow.addEventListener("click", function () {
     newSlideIndex = (currentSlideIndex - 1 + picChild.length) % picChild.length;
 
@@ -177,3 +186,61 @@ function dotSlide(newDot, nowDot) {
         currentSlideIndex = newDot;
     }
 }
+
+// 判斷行程時間
+function checkBookingTime() {
+    let bookingTime = document.querySelector(".booking_time_daybtn");
+    let bookingTimeBtn = bookingTime.querySelector("img");
+    let bookingTimeSrc = bookingTimeBtn.getAttribute("src");
+
+    if (bookingTimeSrc.includes("green")) {
+        bookingTimeValue = "上半天";
+    } else {
+        bookingTimeValue = "下半天";       
+    }
+};
+
+// 處理行程金額
+function checkBookingCost(bookingCost) {
+    let bookingCostString = bookingCost.textContent;
+
+    bookingCostMath = bookingCostString.match(/\d+/);
+    bookingCostValue = bookingCostMath[0];
+};
+
+// 新增預定行程按鈕判斷
+bookingBtn.addEventListener("click", () => {
+    checkBookingTime();
+    checkBookingCost(bookingCost);
+
+    let bookingData = {
+        "attractionId": attractionId,
+        "date": bookingDate.value,
+        "time": bookingTimeValue,
+        "price": bookingCostValue
+    };
+    postBooking(bookingData);
+})
+
+async function postBooking(bookingdata) {
+    try {
+        let response = await fetch("/api/booking", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(bookingdata),
+        });
+        let data = await response.json();
+
+        if (data.error && data.message === "未登入系統，拒絕存取") {
+            loginForm.style.display = "block";
+            signupBackground.style.display = "block";
+        } else if (data.ok) {
+            window.location.href = `http://${hostname}/booking`;
+        };
+    } catch (error) {
+        console.log("Error:", error);
+    };
+};

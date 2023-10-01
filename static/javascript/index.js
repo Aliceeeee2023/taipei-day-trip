@@ -1,12 +1,16 @@
-const hostname = window.location.host;
+// MRT 及搜尋框相關變數
+const mrtContent = document.querySelector(".mrt-content");
+const mrtLeftBtn = document.querySelector(".mrt-leftbtn");
+const mrtRightBtn = document.querySelector(".mrt-rightbtn");
+const searchButton = document.querySelector(".banner-search_btn");   
 
-// 設置首頁跳轉
-const headerTitle = document.querySelector(".header-title");
+// 自動生成相關變數
+let mode = "Normal";
+let normalPage = 0;
+let searchPage = 0;
+let searchWord = "";
 
-headerTitle.addEventListener("click", function () {
-    window.location.href = `http://${hostname}/`;
-});
-
+// 建立 main 物件
 function createAttractions(result) {
     let mainContainer = document.querySelector(".main-container");         
 
@@ -23,7 +27,7 @@ function createAttractions(result) {
 
         let mainName = document.createElement("div");
         mainName.className = "main-name";
-        mainName.textContent = result[i].name;                   
+        mainName.textContent = result[i].name;
 
         let mainInfo = document.createElement("div");
         mainInfo.className = "main-info";  
@@ -50,9 +54,6 @@ function createAttractions(result) {
     }
 }
 
-
-let normalPage = 0;
-
 async function getNormalData() {
     try {
         searchUrl = `http://${hostname}/api/attractions?page=${normalPage}`
@@ -63,7 +64,6 @@ async function getNormalData() {
         let nextPage = data.nextPage;
 
         createAttractions(result);
-
         if (nextPage) {
             normalPage++;
         } else {
@@ -76,10 +76,7 @@ async function getNormalData() {
 }
 getNormalData();
 
-
-let mode = "Normal";
-
-const searchButton = document.querySelector(".banner-search_btn");            
+// 搜尋框事件         
 searchButton.addEventListener("click", () => {
     mode = "Search";
 
@@ -94,10 +91,6 @@ searchButton.addEventListener("click", () => {
     searchUrl = `http://${hostname}/api/attractions?keyword=${searchWord}&page=${searchPage}`
     getSearchData(searchUrl);
 });
-
-
-let searchPage = 0;
-let searchWord = "";
 
 async function getSearchData(searchUrl) {
     try {
@@ -129,7 +122,7 @@ async function getSearchData(searchUrl) {
     };
 };
 
-
+// 生成 MRT 列表
 async function getMrtList() {
     try {
         searchUrl = `http://${hostname}/api/mrts`
@@ -156,7 +149,7 @@ async function getMrtList() {
                 // 避免有未捲到最下方的情況，導致未更新到 searchPage
                 if (searchWord !== mrt_name.textContent) {
                     searchPage = 0;
-                }
+                };
 
                 searchWord = mrt_name.textContent;
 
@@ -174,7 +167,16 @@ async function getMrtList() {
 };
 getMrtList();
 
+// MRT 列表控制
+mrtLeftBtn.addEventListener("click", () => {
+    mrtContent.scrollBy(-500, 0);
+});
 
+mrtRightBtn.addEventListener("click", () => {
+    mrtContent.scrollBy(+500, 0);
+});
+
+// 自動載入事件
 function observeLoading() {
     let options = { threshold:[0.9] };
     let callback = function(entries, observer) {
@@ -193,16 +195,3 @@ function observeLoading() {
     observer.observe(target);
 }
 window.addEventListener("load", observeLoading);
-
-
-const mrtContent = document.querySelector(".mrt-content");
-const mrtLeftBtn = document.querySelector(".mrt-leftbtn");
-const mrtRightBtn = document.querySelector(".mrt-rightbtn");
-
-mrtLeftBtn.addEventListener("click", () => {
-    mrtContent.scrollBy(-500, 0);
-});
-
-mrtRightBtn.addEventListener("click", () => {
-    mrtContent.scrollBy(+500, 0);
-});
