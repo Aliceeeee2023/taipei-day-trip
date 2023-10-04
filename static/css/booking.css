@@ -104,7 +104,7 @@
     color:  #666;
     font-weight: 500;
 }
-.data-name, .data-email, .data-phone, .payment-detail_content {
+.data-name, .data-email, .data-phone, .tpfield {
     width: 200px;
     height: 38px;
     padding: 10px;

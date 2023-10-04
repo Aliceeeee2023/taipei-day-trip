@@ -104,7 +104,7 @@
                     </div>
                     <div class="contact-data">
                         <div class="data-title">手機號碼：</div>
-                        <input class="data-phone" type="text" placeholder="">
+                        <input class="data-phone" type="text" placeholder="" maxlength="10">
                     </div>
                     <div class="contact-remind">請保持手機暢通，準時到達，導覽人員將用手機與您聯繫，務必留下正確的聯絡方式。</div>
                 </div>
@@ -117,15 +117,15 @@
                     <div class="payment-title">信用卡付款資訊</div>
                     <div class="payment-detail">
                         <div class="payment-detail_title">卡片號碼：</div>
-                        <input class="payment-detail_content" type="text" placeholder="**** **** **** ****">
+                        <div class="tpfield" id="card-number"></div>
                     </div>
                     <div class="payment-detail">
                         <div class="payment-detail_title">過期時間：</div>
-                        <input class="payment-detail_content" type="text" placeholder="MM / YY">
+                        <div class="tpfield" id="card-expiration-date"></div>
                     </div>
                     <div class="payment-detail">
                         <div class="payment-detail_title">驗證密碼：</div>
-                        <input class="payment-detail_content" type="text" placeholder="CVV">
+                        <div class="tpfield" id="card-ccv"></div>
                     </div>
                 </div>
             </div>
@@ -146,7 +146,9 @@
             <div class="footer-container">COPYRIGHT © 2021 台北一日遊</div>
         </footer>
 
+        <script src="https://js.tappaysdk.com/sdk/tpdirect/v5.17.0"></script>
         <script src="../static/javascript/base.js"></script>
         <script src="../static/javascript/booking.js"></script>
+        <script src="../static/javascript/order.js"></script>
     </body>
 </html>

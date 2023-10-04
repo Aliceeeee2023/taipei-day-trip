@@ -1,9 +1,17 @@
 from flask import *
-import mysql.connector.pooling, json, jwt, datetime
+from dotenv import load_dotenv
+import mysql.connector.pooling, json, jwt, datetime, time, requests, os
+
+# 設置環境變數
+load_dotenv()
+db_password = os.getenv("db_password")
+secret_key = os.getenv("jwt_secret_key")
+tappay_partner_key = os.getenv("tappay_partner_key")
+tappay_merchant_id = os.getenv("tappay_merchant_id")
 
 dbconfig = {
     "user" : "root",
-    "password" : "wehelp20230903",
+    "password" : db_password,
     "host" : "localhost",
     "database" : "taipei_day_trip"
 }
@@ -14,8 +22,6 @@ app = Flask(__name__, static_folder="static", static_url_path="/static")
 app.config["JSON_AS_ASCII"] = False
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config["JSON_SORT_KEYS"] = False
-
-secret_key = "test"
 
 # Pages
 @app.route("/")
@@ -329,7 +335,7 @@ def checkUsers():
 		if bearer_token == "null":
 			return jsonify({"data" : None}), 200
 
-		payload = jwt.decode(bearer_token, secret_key, algorithms=['HS256'])
+		payload = jwt.decode(bearer_token, secret_key, algorithms=["HS256"])
 		id = payload["id"]
 
 		query = "SELECT id, name, email, password FROM users WHERE id=%s"
@@ -371,7 +377,7 @@ def add_booking():
 
 			return jsonify(wrong_message), 403
 
-		payload = jwt.decode(bearer_token, secret_key, algorithms=['HS256'])
+		payload = jwt.decode(bearer_token, secret_key, algorithms=["HS256"])
 		id = payload["id"]
 
 		query = """
@@ -439,14 +445,14 @@ def get_booking():
 
 			return jsonify(wrong_message), 403
 
-		payload = jwt.decode(bearer_token, secret_key, algorithms=['HS256'])
+		payload = jwt.decode(bearer_token, secret_key, algorithms=["HS256"])
 		id = payload["id"]
 
 		query = """
 		SELECT u.id AS users_id, b.users_id AS booking_id, DATE_FORMAT(b.date, "%Y-%m-%d") AS date, b.time, b.price, a.id, a.name, a.address, i.url
 		FROM users AS u
 		LEFT JOIN bookings AS b ON u.id=b.users_id		
-		LEFT JOIN attractions AS A ON a.id=b.attractions_id
+		LEFT JOIN attractions AS a ON a.id=b.attractions_id
 		LEFT JOIN images AS i ON a.id=i.attractions_id
 		WHERE u.id=%s
 		LIMIT 1
@@ -512,7 +518,7 @@ def delete_booking():
 
 			return jsonify(wrong_message), 403
 
-		payload = jwt.decode(bearer_token, secret_key, algorithms=['HS256'])
+		payload = jwt.decode(bearer_token, secret_key, algorithms=["HS256"])
 		id = payload["id"]
 
 		query = """
@@ -540,6 +546,115 @@ def delete_booking():
 			}
 
 			return jsonify(wrong_message), 403
+	except Exception as error:
+		print(error)
+		connection.rollback()
+
+		error_message = {
+			"error": True,
+ 			"message": "伺服器內部錯誤"
+		}
+
+		return jsonify(error_message), 500
+	finally:
+		cursor.close()
+		connection.close()
+
+# 自訂訂單編號
+def create_order_number():
+	order_number = str(time.strftime("%Y%m%d%H%M%S", time.localtime(time.time()))+str(time.time()).replace(".", "")[-4:])
+	return order_number
+
+@app.route("/api/orders", methods=["POST"])
+def add_orders():
+	connection = connection_pool.get_connection()
+	cursor = connection.cursor(dictionary=True)
+
+	try:
+		data = request.get_json()
+		authorization_header = request.headers.get("Authorization")
+		bearer_token = authorization_header.split(" ")[1]
+
+		if bearer_token == "null":
+			wrong_message = {
+				"error": True,
+				"message": "未登入系統，拒絕存取"
+			}
+
+			return jsonify(wrong_message), 403
+
+		payload = jwt.decode(bearer_token, secret_key, algorithms=["HS256"])
+		id = payload["id"]
+
+		number = create_order_number()
+		order = data["order"]["trip"]
+		contact = data["order"]["contact"]
+		attraction = data["order"]["trip"]["attraction"]
+
+		query = "INSERT INTO orders(users_id, attractions_id, number, status, name, email, phone, date, time, price) VALUE (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+		cursor.execute(query, (id, attraction["id"], number, 1, contact["name"], contact["email"], contact["phone"], order["date"], order["time"], data["order"]["price"]))
+		connection.commit()
+
+		delete_query = "DELETE FROM bookings WHERE users_id=%s"
+		cursor.execute(delete_query, (id,))
+		connection.commit()
+
+		# 傳資料給 Tappay 端
+		test_url = "https://sandbox.tappaysdk.com/tpc/payment/pay-by-prime"
+		partner_key = tappay_partner_key
+
+		tappay_headers = {
+			"Content-Type": "application/json",
+			"x-api-key": partner_key
+		}
+
+		tappay_payload = {
+			"prime": data["prime"],
+			"partner_key": partner_key,
+			"merchant_id": tappay_merchant_id,
+			"order_number": number,
+			"details": "TapPay Test",
+			"amount": data["order"]["price"],
+			"cardholder": {
+				"phone_number": contact["phone"],
+				"name": contact["name"],
+				"email": contact["email"],
+			},
+			"remember": True
+		}
+		payload_json = json.dumps(tappay_payload)
+		
+		tappay_response = requests.post(test_url, data=payload_json, headers=tappay_headers)
+		tappay_response_json = tappay_response.json()
+
+		if tappay_response_json["status"] == 0:
+			success_query = "UPDATE orders SET status=0 WHERE number=%s"
+			cursor.execute(success_query, (number,))
+			connection.commit()
+
+			success_response = {
+					"data": {
+						"number": number,
+						"payment": {
+						"status": 0,
+						"message": "付款成功"
+						}
+					}
+				}
+
+			return jsonify(success_response), 200
+		else:
+			fail_response = {
+				"data": {
+					"number": number,
+					"payment": {
+					"status": 1,
+					"message": "付款失敗"
+					}
+				}
+			}
+
+			return jsonify(fail_response), 200
 	except Exception as error:
 		print(error)
 		connection.rollback()
