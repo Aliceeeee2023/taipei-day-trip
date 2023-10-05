@@ -5,6 +5,9 @@ const bookingData = document.querySelector(".booking-data");
 const bookingDelete = document.querySelector(".location-delete");
 const footer = document.querySelector(".footer");
 
+// 取出訂單資料放到全局
+let orderData = null;
+
 // 新增預定頁面資料
 async function checkUsers(token) {
     try {
@@ -16,6 +19,7 @@ async function checkUsers(token) {
         });
         let data = await response.json();
         let status = data.data;
+        orderData = status;
 
         if ("error" in data) {           
             body.style.display = "none";
@@ -58,7 +62,7 @@ function createBooking(data) {
     addressContent.textContent = data.attraction.address; 
 
     let checkCost = document.querySelector(".check-cost");
-    checkCost.textContent = `總價：新台幣 ${data.price} 元`; 
+    checkCost.textContent = `總價：新台幣 ${data.price} 元`;
 };
 
 async function getMember() {
